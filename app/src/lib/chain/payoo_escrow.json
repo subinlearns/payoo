@@ -1,0 +1,2130 @@
+{
+  "address": "JDyePwDypafn8Yi9fZdzPYp7b4uztLKD9zZ3DfV4VxVy",
+  "metadata": {
+    "name": "payoo_escrow",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Payoo cross-border payment escrow (Nepal -> China) on Solana"
+  },
+  "instructions": [
+    {
+      "name": "cancel_expired",
+      "docs": [
+        "Anyone may cancel an order whose quote expired before funding."
+      ],
+      "discriminator": [
+        248,
+        138,
+        112,
+        93,
+        177,
+        89,
+        249,
+        246
+      ],
+      "accounts": [
+        {
+          "name": "cranker",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order.order_id",
+                "account": "Order"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order"
+              }
+            ]
+          }
+        },
+        {
+          "name": "operator",
+          "writable": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "confirm_delivery",
+      "docs": [
+        "Escrow mode: buyer confirms the goods arrived."
+      ],
+      "discriminator": [
+        11,
+        109,
+        227,
+        53,
+        179,
+        190,
+        88,
+        155
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "signer": true,
+          "relations": [
+            "order"
+          ]
+        },
+        {
+          "name": "order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order.order_id",
+                "account": "Order"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_order",
+      "docs": [
+        "Records an accepted quote and opens an empty escrow vault for it."
+      ],
+      "discriminator": [
+        141,
+        54,
+        37,
+        207,
+        237,
+        210,
+        250,
+        215
+      ],
+      "accounts": [
+        {
+          "name": "operator",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "rate_feed",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "buyer"
+        },
+        {
+          "name": "order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "params.order_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order"
+              }
+            ]
+          }
+        },
+        {
+          "name": "usdc_mint",
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "CreateOrderParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "fund_order",
+      "docs": [
+        "Moves USDC from the treasury into the order's escrow vault."
+      ],
+      "discriminator": [
+        224,
+        98,
+        132,
+        110,
+        157,
+        216,
+        234,
+        54
+      ],
+      "accounts": [
+        {
+          "name": "operator",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order.order_id",
+                "account": "Order"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "usdc_mint",
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "initialize",
+      "docs": [
+        "One-time setup of the platform config and FX reference rate feed."
+      ],
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "rate_feed",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "usdc_mint"
+        },
+        {
+          "name": "treasury"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "InitializeParams"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "mark_in_transit",
+      "docs": [
+        "Escrow mode: supplier shipped; starts the delivery window."
+      ],
+      "discriminator": [
+        208,
+        164,
+        6,
+        15,
+        221,
+        55,
+        217,
+        108
+      ],
+      "accounts": [
+        {
+          "name": "operator",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order.order_id",
+                "account": "Order"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "delivery_window_secs",
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "mark_settled",
+      "docs": [
+        "Settlement partner confirms the CNY payout reached the supplier."
+      ],
+      "discriminator": [
+        85,
+        36,
+        192,
+        146,
+        83,
+        42,
+        49,
+        60
+      ],
+      "accounts": [
+        {
+          "name": "settlement_partner",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order.order_id",
+                "account": "Order"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "payout_ref",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "open_dispute",
+      "docs": [
+        "Escrow mode: buyer freezes the funds pending admin review."
+      ],
+      "discriminator": [
+        137,
+        25,
+        99,
+        119,
+        23,
+        223,
+        161,
+        42
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "signer": true,
+          "relations": [
+            "order"
+          ]
+        },
+        {
+          "name": "order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order.order_id",
+                "account": "Order"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "reason",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "push_rate",
+      "docs": [
+        "Oracle authority pushes USD/CNY and USD/NPR reference rates."
+      ],
+      "discriminator": [
+        94,
+        183,
+        4,
+        143,
+        140,
+        34,
+        10,
+        233
+      ],
+      "accounts": [
+        {
+          "name": "oracle_authority",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "rate_feed",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  97,
+                  116,
+                  101
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "usd_cny_e6",
+          "type": "u64"
+        },
+        {
+          "name": "usd_npr_e6",
+          "type": "u64"
+        },
+        {
+          "name": "source",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "refund",
+      "docs": [
+        "Returns escrowed USDC to the treasury (buyer is refunded in NPR)."
+      ],
+      "discriminator": [
+        2,
+        96,
+        183,
+        251,
+        63,
+        208,
+        46,
+        46
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order.order_id",
+                "account": "Order"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "usdc_mint",
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "operator",
+          "writable": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "release_to_settlement",
+      "docs": [
+        "Sends escrowed USDC to the settlement partner."
+      ],
+      "discriminator": [
+        92,
+        88,
+        4,
+        87,
+        110,
+        123,
+        56,
+        134
+      ],
+      "accounts": [
+        {
+          "name": "authority",
+          "signer": true
+        },
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order.order_id",
+                "account": "Order"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order"
+              }
+            ]
+          }
+        },
+        {
+          "name": "settlement_token_account",
+          "writable": true
+        },
+        {
+          "name": "usdc_mint",
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "operator",
+          "writable": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "resolve_dispute",
+      "docs": [
+        "Admin settles a dispute: refund the buyer or pay the supplier."
+      ],
+      "discriminator": [
+        231,
+        6,
+        202,
+        6,
+        96,
+        103,
+        12,
+        230
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "order",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  114,
+                  100,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order.order_id",
+                "account": "Order"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "order"
+              }
+            ]
+          }
+        },
+        {
+          "name": "treasury",
+          "writable": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "settlement_token_account",
+          "writable": true
+        },
+        {
+          "name": "usdc_mint",
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "operator",
+          "writable": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "refund_buyer",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "update_config",
+      "docs": [
+        "Admin-only config changes (keys, fee, limits, pause)."
+      ],
+      "discriminator": [
+        29,
+        158,
+        252,
+        191,
+        10,
+        83,
+        219,
+        99
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "params",
+          "type": {
+            "defined": {
+              "name": "UpdateConfigParams"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Config",
+      "discriminator": [
+        155,
+        12,
+        170,
+        224,
+        30,
+        250,
+        204,
+        130
+      ]
+    },
+    {
+      "name": "Order",
+      "discriminator": [
+        134,
+        173,
+        223,
+        185,
+        77,
+        86,
+        28,
+        51
+      ]
+    },
+    {
+      "name": "RateFeed",
+      "discriminator": [
+        192,
+        77,
+        209,
+        138,
+        50,
+        103,
+        37,
+        189
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "DeliveryConfirmed",
+      "discriminator": [
+        225,
+        181,
+        249,
+        139,
+        185,
+        125,
+        219,
+        154
+      ]
+    },
+    {
+      "name": "DisputeOpened",
+      "discriminator": [
+        239,
+        222,
+        102,
+        235,
+        193,
+        85,
+        1,
+        214
+      ]
+    },
+    {
+      "name": "DisputeResolved",
+      "discriminator": [
+        121,
+        64,
+        249,
+        153,
+        139,
+        128,
+        236,
+        187
+      ]
+    },
+    {
+      "name": "OrderCancelled",
+      "discriminator": [
+        108,
+        56,
+        128,
+        68,
+        168,
+        113,
+        168,
+        239
+      ]
+    },
+    {
+      "name": "OrderCreated",
+      "discriminator": [
+        224,
+        1,
+        229,
+        63,
+        254,
+        60,
+        190,
+        159
+      ]
+    },
+    {
+      "name": "OrderFunded",
+      "discriminator": [
+        33,
+        168,
+        21,
+        171,
+        46,
+        9,
+        84,
+        49
+      ]
+    },
+    {
+      "name": "OrderRefunded",
+      "discriminator": [
+        120,
+        155,
+        10,
+        169,
+        7,
+        98,
+        202,
+        187
+      ]
+    },
+    {
+      "name": "OrderReleased",
+      "discriminator": [
+        171,
+        232,
+        93,
+        217,
+        184,
+        222,
+        234,
+        29
+      ]
+    },
+    {
+      "name": "OrderSettled",
+      "discriminator": [
+        32,
+        21,
+        123,
+        33,
+        68,
+        59,
+        136,
+        131
+      ]
+    },
+    {
+      "name": "OrderShipped",
+      "discriminator": [
+        200,
+        225,
+        83,
+        123,
+        179,
+        86,
+        221,
+        24
+      ]
+    },
+    {
+      "name": "RateUpdated",
+      "discriminator": [
+        215,
+        212,
+        25,
+        235,
+        152,
+        203,
+        38,
+        205
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Paused",
+      "msg": "Platform is paused"
+    },
+    {
+      "code": 6001,
+      "name": "Unauthorized",
+      "msg": "Signer is not authorized for this action"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidStatus",
+      "msg": "Order is not in a valid state for this action"
+    },
+    {
+      "code": 6003,
+      "name": "NotEscrowMode",
+      "msg": "Instruction only applies to escrow-protected orders"
+    },
+    {
+      "code": 6004,
+      "name": "QuoteExpired",
+      "msg": "Quote has expired"
+    },
+    {
+      "code": 6005,
+      "name": "QuoteNotExpired",
+      "msg": "Quote has not expired yet"
+    },
+    {
+      "code": 6006,
+      "name": "StaleRate",
+      "msg": "FX reference rate is stale"
+    },
+    {
+      "code": 6007,
+      "name": "RateDeviation",
+      "msg": "Quoted FX rate deviates too far from the reference rate"
+    },
+    {
+      "code": 6008,
+      "name": "AmountMismatch",
+      "msg": "USDC amount does not match the invoice and quoted rate"
+    },
+    {
+      "code": 6009,
+      "name": "ZeroAmount",
+      "msg": "Order amount must be greater than zero"
+    },
+    {
+      "code": 6010,
+      "name": "OrderTooLarge",
+      "msg": "Order amount exceeds the per-order limit"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidParam",
+      "msg": "Invalid parameter"
+    },
+    {
+      "code": 6012,
+      "name": "ReleaseWindowOpen",
+      "msg": "Auto-release window has not elapsed"
+    },
+    {
+      "code": 6013,
+      "name": "Overflow",
+      "msg": "Arithmetic overflow"
+    }
+  ],
+  "types": [
+    {
+      "name": "Config",
+      "docs": [
+        "Global platform configuration. One per deployment."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "docs": [
+              "Governance key (a Squads multisig in production). Resolves disputes, edits config."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "operator",
+            "docs": [
+              "Platform backend hot key. Creates and funds orders, marks shipments."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "oracle_authority",
+            "docs": [
+              "Key allowed to push FX reference rates (relays Pyth / market data)."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "settlement_partner",
+            "docs": [
+              "Licensed settlement partner wallet. Receives USDC and pays suppliers in CNY."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "usdc_mint",
+            "docs": [
+              "USDC mint accepted by the escrow."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "treasury",
+            "docs": [
+              "Treasury USDC token account (owned by `operator`) that funds escrows and receives refunds."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_bps",
+            "docs": [
+              "Platform fee in bps, recorded per order for transparent receipts."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "max_quote_deviation_bps",
+            "docs": [
+              "Max allowed deviation between a quoted rate and the on-chain reference rate."
+            ],
+            "type": "u16"
+          },
+          {
+            "name": "max_rate_staleness_secs",
+            "docs": [
+              "Reference rate must be fresher than this when an order is created."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "dispute_window_secs",
+            "docs": [
+              "Grace period after the delivery deadline before anyone may crank an auto-release."
+            ],
+            "type": "u32"
+          },
+          {
+            "name": "max_order_usdc",
+            "docs": [
+              "Per-order cap (in USDC base units) to limit blast radius in early stages."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "paused",
+            "type": "bool"
+          },
+          {
+            "name": "order_count",
+            "type": "u64"
+          },
+          {
+            "name": "total_volume_usdc",
+            "type": "u64"
+          },
+          {
+            "name": "total_settled_usdc",
+            "type": "u64"
+          },
+          {
+            "name": "total_refunded_usdc",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreateOrderParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "order_id",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          },
+          {
+            "name": "supplier_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "invoice_cny_fen",
+            "type": "u64"
+          },
+          {
+            "name": "quote_rate_e6",
+            "type": "u64"
+          },
+          {
+            "name": "amount_usdc",
+            "type": "u64"
+          },
+          {
+            "name": "npr_paid_paisa",
+            "type": "u64"
+          },
+          {
+            "name": "quote_expires_at",
+            "type": "i64"
+          },
+          {
+            "name": "escrow_mode",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DeliveryConfirmed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "order",
+            "type": "pubkey"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DisputeOpened",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "order",
+            "type": "pubkey"
+          },
+          {
+            "name": "reason",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DisputeResolved",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "order",
+            "type": "pubkey"
+          },
+          {
+            "name": "refunded",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "InitializeParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "operator",
+            "type": "pubkey"
+          },
+          {
+            "name": "oracle_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "settlement_partner",
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_quote_deviation_bps",
+            "type": "u16"
+          },
+          {
+            "name": "max_rate_staleness_secs",
+            "type": "u32"
+          },
+          {
+            "name": "dispute_window_secs",
+            "type": "u32"
+          },
+          {
+            "name": "max_order_usdc",
+            "type": "u64"
+          },
+          {
+            "name": "usd_cny_e6",
+            "type": "u64"
+          },
+          {
+            "name": "usd_npr_e6",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Order",
+      "docs": [
+        "One escrow per payment order. PDA: [\"order\", order_id]."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "order_id",
+            "docs": [
+              "Off-chain order UUID (16 bytes)."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          },
+          {
+            "name": "buyer",
+            "docs": [
+              "Buyer's embedded wallet."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "supplier_hash",
+            "docs": [
+              "sha256 of the supplier payout details (kept off-chain for privacy)."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "invoice_cny_fen",
+            "docs": [
+              "Invoice amount in CNY fen (1/100 yuan)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "quote_rate_e6",
+            "docs": [
+              "CNY per USD (x1e6) locked in the quote."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "amount_usdc",
+            "docs": [
+              "USDC (6 decimals) the escrow must deliver to the settlement partner."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "fee_usdc",
+            "docs": [
+              "Platform fee in USDC terms, recorded for the receipt."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "npr_paid_paisa",
+            "docs": [
+              "Total the buyer paid in NPR paisa (1/100 rupee)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "escrow_mode",
+            "type": "bool"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "OrderStatus"
+              }
+            }
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "quote_expires_at",
+            "type": "i64"
+          },
+          {
+            "name": "funded_at",
+            "type": "i64"
+          },
+          {
+            "name": "shipped_at",
+            "type": "i64"
+          },
+          {
+            "name": "delivery_deadline",
+            "type": "i64"
+          },
+          {
+            "name": "released_at",
+            "type": "i64"
+          },
+          {
+            "name": "settled_at",
+            "type": "i64"
+          },
+          {
+            "name": "payout_ref",
+            "docs": [
+              "Settlement partner payout reference (bank / Alipay / WeChat transaction id)."
+            ],
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "dispute_reason",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "vault_bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderCancelled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "order",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderCreated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "order",
+            "type": "pubkey"
+          },
+          {
+            "name": "order_id",
+            "type": {
+              "array": [
+                "u8",
+                16
+              ]
+            }
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "invoice_cny_fen",
+            "type": "u64"
+          },
+          {
+            "name": "amount_usdc",
+            "type": "u64"
+          },
+          {
+            "name": "quote_rate_e6",
+            "type": "u64"
+          },
+          {
+            "name": "escrow_mode",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderFunded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "order",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount_usdc",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderRefunded",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "order",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount_usdc",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderReleased",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "order",
+            "type": "pubkey"
+          },
+          {
+            "name": "settlement_partner",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount_usdc",
+            "type": "u64"
+          },
+          {
+            "name": "auto_release",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderSettled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "order",
+            "type": "pubkey"
+          },
+          {
+            "name": "payout_ref",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderShipped",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "order",
+            "type": "pubkey"
+          },
+          {
+            "name": "delivery_deadline",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "OrderStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Created"
+          },
+          {
+            "name": "Funded"
+          },
+          {
+            "name": "InTransit"
+          },
+          {
+            "name": "Delivered"
+          },
+          {
+            "name": "Released"
+          },
+          {
+            "name": "Settled"
+          },
+          {
+            "name": "Disputed"
+          },
+          {
+            "name": "Refunded"
+          },
+          {
+            "name": "Cancelled"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RateFeed",
+      "docs": [
+        "On-chain FX reference rates, pushed by the oracle authority."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "usd_cny_e6",
+            "docs": [
+              "CNY per 1 USD, scaled by 1e6."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "usd_npr_e6",
+            "docs": [
+              "NPR per 1 USD, scaled by 1e6."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "updated_at",
+            "type": "i64"
+          },
+          {
+            "name": "source",
+            "docs": [
+              "0 = manual, 1 = Pyth, 2 = public market API."
+            ],
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RateUpdated",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "usd_cny_e6",
+            "type": "u64"
+          },
+          {
+            "name": "usd_npr_e6",
+            "type": "u64"
+          },
+          {
+            "name": "source",
+            "type": "u8"
+          },
+          {
+            "name": "updated_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateConfigParams",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "operator",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "oracle_authority",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "settlement_partner",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "treasury",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "fee_bps",
+            "type": {
+              "option": "u16"
+            }
+          },
+          {
+            "name": "max_quote_deviation_bps",
+            "type": {
+              "option": "u16"
+            }
+          },
+          {
+            "name": "max_rate_staleness_secs",
+            "type": {
+              "option": "u32"
+            }
+          },
+          {
+            "name": "dispute_window_secs",
+            "type": {
+              "option": "u32"
+            }
+          },
+          {
+            "name": "max_order_usdc",
+            "type": {
+              "option": "u64"
+            }
+          },
+          {
+            "name": "paused",
+            "type": {
+              "option": "bool"
+            }
+          },
+          {
+            "name": "new_admin",
+            "type": {
+              "option": "pubkey"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

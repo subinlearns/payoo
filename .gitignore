@@ -1,0 +1,10 @@
+node_modules/
+.anchor/
+test-ledger/
+.DS_Store
+**/*.rs.bk
+
+# Build output, but keep the generated IDL (the app uses it).
+# The program keypair in target/deploy is a secret: never commit it.
+target/*
+!target/idl/
